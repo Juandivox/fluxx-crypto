@@ -5,8 +5,8 @@ set -e
 echo "🚀 Iniciando configuración del nodo genesis de FluxxChain..."
 
 # Variables
-BASE_DIR=~/fluxxchain
-PRIVATE_DIR=$BASE_DIR/private
+BASE_DIR="$HOME/fluxxchain"
+PRIVATE_DIR="$BASE_DIR/private"
 SDK_REPO=https://github.com/cosmos/cosmos-sdk
 SDK_VERSION=v0.45.4
 DOCKER_IMAGE=fluxxchain:v0.1
