@@ -1,17 +1,39 @@
 #!/bin/bash
-
 set -e
 
-echo "🚀 Iniciando configuración del nodo genesis de FluxxChain..."
+echo "🚀 Iniciando configuración del nodo génesis de FluxxChain..."
 
-# Variables
+# 🔍 Verificación de dependencias
+for cmd in git docker; do
+  if ! command -v $cmd &>/dev/null; then
+    echo "❌ Error: '$cmd' no está instalado. Abortando."
+    exit 1
+  fi
+done
+
+# 📁 Variables de ruta
 BASE_DIR="$(pwd)/fluxxchain"
 PRIVATE_DIR="$BASE_DIR/private"
 SDK_REPO=https://github.com/cosmos/cosmos-sdk
 SDK_VERSION=v0.45.4
 DOCKER_IMAGE=fluxxchain:v0.1
+CONTAINER_NAME=fluxxchain-node
 
-# Paso 1: Clonar SDK y compilar imagen Docker
+# 🚫 Verificación de nodo ya inicializado
+if [ -d "$PRIVATE_DIR/config" ]; then
+  echo "⚠️  El nodo ya fue inicializado. Ejecutando contenedor existente..."
+  
+  if docker ps -a --format '{{.Names}}' | grep -Eq "^$CONTAINER_NAME$"; then
+    docker start -ai "$CONTAINER_NAME"
+  else
+    echo "❗ El contenedor '$CONTAINER_NAME' no existe, pero la carpeta sí. Usa:"
+    echo "   docker run -it -v $PRIVATE_DIR:/root/.simapp --name $CONTAINER_NAME $DOCKER_IMAGE simd start"
+  fi
+
+  exit 0
+fi
+
+# 📦 Clonar Cosmos SDK y construir imagen
 echo "📦 Clonando Cosmos SDK y construyendo imagen Docker..."
 mkdir -p "$BASE_DIR"
 cd "$BASE_DIR"
@@ -25,8 +47,8 @@ git fetch
 git checkout "$SDK_VERSION"
 docker build . -t "$DOCKER_IMAGE"
 
-# Paso 2: Inicializar simapp y crear cuenta genesis
-echo "🔧 Inicializando nodo simapp y creando cuenta genesis..."
+# 🔧 Inicializar nodo génesis
+echo "🔧 Inicializando nodo simapp y creando cuenta génesis..."
 
 mkdir -p "$PRIVATE_DIR"
 
@@ -38,10 +60,10 @@ docker run --rm -v "$PRIVATE_DIR":/root/.simapp "$DOCKER_IMAGE" sh -c "
   simd collect-gentxs
 "
 
-# Paso 3: Iniciar nodo
+# 🚀 Arrancar el nodo en contenedor persistente
 echo "🚀 Iniciando nodo FluxxChain en contenedor Docker..."
 docker run -it \
   -v "$PRIVATE_DIR":/root/.simapp \
-  --name fluxxchain-node \
+  --name "$CONTAINER_NAME" \
   "$DOCKER_IMAGE" \
   simd start
