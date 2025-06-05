@@ -5,7 +5,7 @@ set -e
 CHAIN_ID="fluxxchain-devnet"
 NODE_MONIKER="node2"
 GENESIS_URL="https://raw.githubusercontent.com/Juandivox/fluxx-crypto/main/genesis.json"
-PEER_ID="35ef7809585ac724ecce5f72ba4b2ecff8ce5b84"
+PEER_ID="49137fcb54d8603448040ccf71f3be74e44d3a4a"
 PEER_IP="172.17.0.2"
 DOCKER_IMAGE="fluxxchain:v0.1"
 NODE_HOME="/root/.simapp"
