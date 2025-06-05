@@ -38,6 +38,7 @@ fi
 echo "📦 Preparando entorno de nodo 2..."
 mkdir -p "$NODE_DIR"
 
+
 if [ ! -f "$NODE_DIR/config/genesis.json" ]; then
   echo "🗂️ Inicializando nodo local..."
   docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" \
@@ -47,6 +48,21 @@ if [ ! -f "$NODE_DIR/config/genesis.json" ]; then
   curl -sSfL "$GENESIS_URL" -o "$NODE_DIR/config/genesis.json"
 else
   echo "ℹ️ Nodo ya inicializado. Usando datos existentes."
+
+if [ ! -d "$NODE_DIR/config" ]; then
+  echo "🗂️ Inicializando nodo local..."
+  docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" simd init "$NODE_MONIKER" --chain-id "$CHAIN_ID" --home "$NODE_HOME"
+  mkdir -p "$NODE_DIR/config"
+else
+  echo "ℹ️ Nodo ya inicializado. Usando datos existentes."
+fi
+
+if [ ! -f "$NODE_DIR/config/genesis.json" ]; then
+  echo "🌐 Descargando genesis.json..."
+  curl -sSfL "$GENESIS_URL" -o "$NODE_DIR/config/genesis.json"
+else
+  echo "ℹ️ genesis.json ya existe."
+
 fi
 
 if [ "$(id -u)" -eq 0 ]; then
@@ -61,6 +77,21 @@ fi
 
 echo "🚀 Iniciando nodo 2 conectado al nodo principal..."
 docker rm -f fluxxchain-node2 >/dev/null 2>&1 || true
+
+
+echo "🗂️ Inicializando nodo local..."
+docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" simd init "$NODE_MONIKER" --chain-id "$CHAIN_ID" --home "$NODE_HOME"
+mkdir -p "$NODE_DIR/config"
+
+echo "🌐 Descargando genesis.json..."
+curl -s -L -o "$NODE_DIR/config/genesis.json" "$GENESIS_URL"
+
+echo "🧼 Ajustando permisos..."
+sudo chown -R "$USER":"$USER" "$NODE_DIR"
+
+echo "🚀 Iniciando nodo 2 conectado al nodo principal..."
+
+
 docker run -it \
   --name fluxxchain-node2 \
   -v "$NODE_DIR":/root/.simapp \
