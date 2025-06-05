@@ -18,6 +18,22 @@ for cmd in git docker curl; do
     exit 1
   fi
 done
+# Construir imagen Docker si no existe
+BUILD_DIR="$HOME/fluxxchain"
+SDK_DIR="$BUILD_DIR/cosmos-sdk"
+if ! docker image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
+  echo "📦 Construyendo imagen Docker $DOCKER_IMAGE..."
+  mkdir -p "$BUILD_DIR"
+  if [ ! -d "$SDK_DIR" ]; then
+    git clone https://github.com/cosmos/cosmos-sdk "$SDK_DIR"
+  fi
+  cd "$SDK_DIR"
+  git fetch
+  git checkout v0.45.4
+  docker build . -t "$DOCKER_IMAGE"
+  cd - >/dev/null
+fi
+
 
 echo "📦 Preparando entorno de nodo 2..."
 mkdir -p "$NODE_DIR"
@@ -30,7 +46,7 @@ echo "🌐 Descargando genesis.json..."
 curl -s -L -o "$NODE_DIR/config/genesis.json" "$GENESIS_URL"
 
 echo "🧼 Ajustando permisos..."
-sudo chown -R $USER:$USER "$NODE_DIR"
+sudo chown -R "$USER":"$USER" "$NODE_DIR"
 
 echo "🚀 Iniciando nodo 2 conectado al nodo principal..."
 docker run -it \
