@@ -43,10 +43,17 @@ docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" simd init "$NODE_MONIK
 mkdir -p "$NODE_DIR/config"
 
 echo "🌐 Descargando genesis.json..."
-curl -s -L -o "$NODE_DIR/config/genesis.json" "$GENESIS_URL"
+curl -sSfL "$GENESIS_URL" -o "$NODE_DIR/config/genesis.json"
 
-echo "🧼 Ajustando permisos..."
-sudo chown -R "$USER":"$USER" "$NODE_DIR"
+if [ "$(id -u)" -eq 0 ]; then
+  echo "🧼 Ajustando permisos..."
+  chown -R "${SUDO_USER:-root}:${SUDO_USER:-root}" "$NODE_DIR"
+elif command -v sudo >/dev/null && sudo -n true 2>/dev/null; then
+  echo "🧼 Ajustando permisos..."
+  sudo chown -R "$USER":"$USER" "$NODE_DIR"
+else
+  echo "⚠️  No se pudieron ajustar permisos automáticamente." >&2
+fi
 
 echo "🚀 Iniciando nodo 2 conectado al nodo principal..."
 docker run -it \
