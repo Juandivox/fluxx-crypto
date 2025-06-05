@@ -34,13 +34,25 @@ if ! docker image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
   cd - >/dev/null
 fi
 
+# Usar TTY solo cuando el script se ejecute en un terminal
+if [ -t 1 ]; then
+  DOCKER_RUN_FLAGS="-it"
+else
+  DOCKER_RUN_FLAGS="-i"
+fi
+
 
 echo "📦 Preparando entorno de nodo 2..."
 mkdir -p "$NODE_DIR"
 
 
-if [ ! -f "$NODE_DIR/config/genesis.json" ]; then
-  echo "🗂️ Inicializando nodo local..."
+  if curl -sSfL "$GENESIS_URL" -o "$NODE_DIR/config/genesis.json"; then
+    echo "✅ genesis.json descargado"
+  else
+    echo "⚠️  No se pudo descargar genesis.json. Continuando si existe una copia local..." >&2
+  fi
+docker run $DOCKER_RUN_FLAGS \
+
   docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" \
     simd init "$NODE_MONIKER" --chain-id "$CHAIN_ID" --home "$NODE_HOME"
 
