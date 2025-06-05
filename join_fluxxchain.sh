@@ -35,10 +35,11 @@ if ! docker image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
 fi
 
 # Usar TTY solo cuando el script se ejecute en un terminal
-if [ -t 1 ]; then
+if [ -t 0 ] && [ -t 1 ]; then
   DOCKER_RUN_FLAGS="-it"
 else
   DOCKER_RUN_FLAGS="-i"
+  echo "⚠️ Este script se está ejecutando sin TTY completo; usando 'docker run -i'." >&2
 fi
 
 
