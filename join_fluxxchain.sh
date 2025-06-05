@@ -24,6 +24,7 @@ mkdir -p "$NODE_DIR"
 
 echo "🗂️ Inicializando nodo local..."
 docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" simd init "$NODE_MONIKER" --chain-id "$CHAIN_ID" --home "$NODE_HOME"
+mkdir -p "$NODE_DIR/config"
 
 echo "🌐 Descargando genesis.json..."
 curl -s -L -o "$NODE_DIR/config/genesis.json" "$GENESIS_URL"
