@@ -65,7 +65,7 @@ fi
 
 echo "🚀 Iniciando nodo 2 conectado al nodo principal..."
 docker rm -f fluxxchain-node2 >/dev/null 2>&1 || true
-=======
+
 echo "🗂️ Inicializando nodo local..."
 docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" simd init "$NODE_MONIKER" --chain-id "$CHAIN_ID" --home "$NODE_HOME"
 mkdir -p "$NODE_DIR/config"
