@@ -83,4 +83,3 @@ docker run $DOCKER_RUN_FLAGS \
   --rpc.laddr tcp://0.0.0.0:26657 \
   --grpc.address 0.0.0.0:9090 \
   --address tcp://0.0.0.0:26658
-
