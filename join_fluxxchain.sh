@@ -38,19 +38,15 @@ fi
 echo "📦 Preparando entorno de nodo 2..."
 mkdir -p "$NODE_DIR"
 
-if [ ! -d "$NODE_DIR/config" ]; then
-  echo "🗂️ Inicializando nodo local..."
-  docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" simd init "$NODE_MONIKER" --chain-id "$CHAIN_ID" --home "$NODE_HOME"
-  mkdir -p "$NODE_DIR/config"
-else
-  echo "ℹ️ Nodo ya inicializado. Usando datos existentes."
-fi
-
 if [ ! -f "$NODE_DIR/config/genesis.json" ]; then
+  echo "🗂️ Inicializando nodo local..."
+  docker run --rm -v "$NODE_DIR":$NODE_HOME "$DOCKER_IMAGE" \
+    simd init "$NODE_MONIKER" --chain-id "$CHAIN_ID" --home "$NODE_HOME"
+
   echo "🌐 Descargando genesis.json..."
   curl -sSfL "$GENESIS_URL" -o "$NODE_DIR/config/genesis.json"
 else
-  echo "ℹ️ genesis.json ya existe."
+  echo "ℹ️ Nodo ya inicializado. Usando datos existentes."
 fi
 
 if [ "$(id -u)" -eq 0 ]; then
